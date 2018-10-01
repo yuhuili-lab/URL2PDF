@@ -13,6 +13,7 @@
 @private
     BOOL loadComplete;
     NSString *pageTitle;
+  float delay;
 }
 
 @property (nonatomic,readwrite) BOOL loadComplete;

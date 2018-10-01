@@ -24,6 +24,7 @@ void printUsage() {
     printf("  --print-orientation=<VALUE>   -o      Orientation, Portrait or Landscape\n");
     printf("  --autosave-name=<VALUE>       -n      Filename source, URL or Title\n");
     printf("  --autosave-path=<PATH>        -p      Save path\n");
+    printf("  --delay=<VALUE>               -d      Delay is required if the page is loaded by JavaScript.\n");
     
 }
 
@@ -46,6 +47,7 @@ NSMutableDictionary* parseOptions(const int argc, char **argv) {
                                        [NSNumber numberWithBool:YES], @"printBackgrounds",
                                        [NSNumber numberWithBool:YES], @"loadImages",
                                        [NSNumber numberWithBool:NO], @"enableJavaScript",
+                                       [NSNumber numberWithFloat:0], @"delay",
                                        nil];    
     
     
@@ -61,7 +63,8 @@ NSMutableDictionary* parseOptions(const int argc, char **argv) {
         {"load-images",         required_argument,  NULL,   'i'},   
         {"print-orientation",   required_argument,  NULL,   'o'},
         {"autosave-name",       required_argument,  NULL,   'n'}, 
-        {"autosave-path",       required_argument,  NULL,   'p'},        
+        {"autosave-path",       required_argument,  NULL,   'p'},
+        {"delay",               required_argument,  NULL,   'd'},
         {NULL,                  0,                  NULL,   0},
     };
         
@@ -149,8 +152,18 @@ NSMutableDictionary* parseOptions(const int argc, char **argv) {
                 
             case 'p':
                 [parameters setObject:[NSString stringWithFormat:@"%s",optarg] forKey:@"savePath"];
-                break;               
-                    
+                break;
+            
+            case 'd': {
+                float d = [[NSString stringWithFormat:@"%s", optarg] floatValue];
+                if (d < 0) {
+                  printf("Invalid argument for --delay\n");
+                  exit(EXIT_FAILURE);
+                }
+                [parameters setObject:[NSNumber numberWithFloat:d] forKey:@"delay"];
+                break;
+            }
+            
             default:
                 printUsage();
                 exit(EXIT_FAILURE);

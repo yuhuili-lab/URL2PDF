@@ -18,7 +18,8 @@
 {
     
     // Retrieve Parameters                                
-    
+    delay = ((NSNumber *)[parameters objectForKey:@"delay"]).floatValue;
+  
     NSString *savePath = [ parameters objectForKey:@"savePath"];
     int fileNameFrom = [[ parameters objectForKey:@"fileNameFrom"] intValue];
     
@@ -264,10 +265,14 @@
 	}
 }
 
+- (void)delaySetLoadComplete {
+  [self setLoadComplete:YES];
+}
+
 - (void)webView:(WebView*)sender didFinishLoadForFrame:(WebFrame*)frame
 {
 	if ([sender mainFrame] == frame) {
-		[self setLoadComplete:YES];
+    [self performSelector:@selector(delaySetLoadComplete) withObject:nil afterDelay:delay];
 	}
 }
 
