@@ -178,7 +178,7 @@
 		
 		NSMutableDictionary *printInfoDict;
 		printInfoDict = [NSMutableDictionary dictionaryWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
-		[printInfoDict setObject:filename forKey:NSPrintSavePath];		
+		[printInfoDict setObject:filename forKey:NSPrintJobSavingURL];
 		
 		NSPrintInfo *printInfo = [[NSPrintInfo alloc] initWithDictionary: printInfoDict];
 		[printInfo setHorizontallyCentered:NO];

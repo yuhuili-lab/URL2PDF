@@ -181,29 +181,20 @@ NSMutableDictionary* parseOptions(const int argc, char **argv) {
 
 int main(const int argc, char **argv)
 {
-    
+
     @autoreleasepool {
-        
+
+        // Required to open CGS Connection for NSWindow
         [NSApplication sharedApplication];
-        
-//        NSArray *input = [[NSArray alloc] initWithObjects:
-//                          [NSURL URLWithString:@"http://cargocollective.com/coryschmitz"],
-//                          [NSURL URLWithString:@"http://mareodomo.com/"],
-//                          [NSURL URLWithString:@"http://appleinsider.com/"],
-//                          [NSURL URLWithString:@"http://bing.com/"],
-//                          [NSURL URLWithString:@"http://google.com/"],
-//                          [NSURL URLWithString:@"http://yahoo.com/"],
-//                          nil];    
-        
+
         NSMutableDictionary *parameters = parseOptions(argc, argv);
-//        NSLog(@"%@",parameters);
-                
+
         NSArray *input = [[NSArray alloc] initWithObjects:
                           [NSURL URLWithString:[parameters objectForKey:@"url"]],
                           nil];
-        
+
         PDFDownloader *downloader = [[PDFDownloader alloc] init];
-        
+
         [downloader downloadURLs:input parameters:parameters];          
         
         
