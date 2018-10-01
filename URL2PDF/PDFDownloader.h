@@ -7,13 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "WebKit/WebKit.h"
+#import <WebKit/WebKit.h>
 
-@interface PDFDownloader : NSObject {
+@interface PDFDownloader : NSObject <WebFrameLoadDelegate, WebResourceLoadDelegate> {
 @private
     BOOL loadComplete;
     NSString *pageTitle;
-  float delay;
+    float delay;
 }
 
 @property (nonatomic,readwrite) BOOL loadComplete;
