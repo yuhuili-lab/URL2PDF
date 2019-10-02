@@ -25,35 +25,35 @@
     
     int printOrientation = [[ parameters objectForKey:@"printOrientation"] intValue];
     BOOL printPaginate = [[ parameters objectForKey:@"printPaginate"] boolValue];
-    BOOL printBackgrounds = [[ parameters objectForKey:@"printBackgrounds"] boolValue];	
+    BOOL printBackgrounds = [[ parameters objectForKey:@"printBackgrounds"] boolValue]; 
     
-    BOOL loadImages = [[ parameters objectForKey:@"loadImages"] boolValue];	
-    BOOL enableJavaScript = [[ parameters objectForKey:@"enableJavaScript"] boolValue];	                                       
+    BOOL loadImages = [[ parameters objectForKey:@"loadImages"] boolValue]; 
+    BOOL enableJavaScript = [[ parameters objectForKey:@"enableJavaScript"] boolValue];                                        
     
     // Paper Size
     
     NSPrintInfo *printInfo = [NSPrintInfo sharedPrintInfo];
     NSSize pageSize = [printInfo paperSize];
     
-	int printWidth;
-	int printHeight;
-	switch (printOrientation) {
-		case 0:
-			printWidth = pageSize.width;
-			printHeight = pageSize.height;
-			break;
-		case 1:
-			printWidth = pageSize.height;
-			printHeight = pageSize.width;
-			break;
-	}	
+    int printWidth;
+    int printHeight;
+    switch (printOrientation) {
+        case 0:
+            printWidth = pageSize.width;
+            printHeight = pageSize.height;
+            break;
+        case 1:
+            printWidth = pageSize.height;
+            printHeight = pageSize.width;
+            break;
+    }   
     
     // Webview
     
     NSRect frame = NSMakeRect(0,0,1,1);
     
     WebView *webView = [[WebView alloc] initWithFrame:frame];
-    [webView setMaintainsBackForwardList:NO];	
+    [webView setMaintainsBackForwardList:NO];   
     [webView setFrameLoadDelegate:self];
     [webView setResourceLoadDelegate:self];
     [webView setMediaStyle:@"screen"];
@@ -68,33 +68,33 @@
     
     // Static Prefernces
     
-    [[webView preferences] setAllowsAnimatedImages:NO];	
+    [[webView preferences] setAllowsAnimatedImages:NO]; 
     [[webView preferences] setAllowsAnimatedImageLooping:NO];
     [[webView preferences] setPlugInsEnabled:NO];
-    [[webView preferences] setJavaEnabled:NO];	
+    [[webView preferences] setJavaEnabled:NO];  
     [[webView preferences] setJavaScriptCanOpenWindowsAutomatically:NO];
     
     // Optional preferences
     
     [[webView preferences] setJavaScriptEnabled:enableJavaScript];
-	[[webView preferences] setShouldPrintBackgrounds:printBackgrounds];
-	[[webView preferences] setLoadsImagesAutomatically:loadImages];	        
+    [[webView preferences] setShouldPrintBackgrounds:printBackgrounds];
+    [[webView preferences] setLoadsImagesAutomatically:loadImages];         
     
-	// Process each URL
+    // Process each URL
     
     NSMutableArray *output = [NSMutableArray arrayWithCapacity:[input count]];
     NSEnumerator *enumerate = [input objectEnumerator];
-    NSURL *curURL;	
-	
-	while (curURL = [enumerate nextObject]) {
+    NSURL *curURL;  
+    
+    while (curURL = [enumerate nextObject]) {
         
         //NSLog(@"Downloading URL: %@", [curURL absoluteString]);
         
         // Send Requests
         
         bool isRunning;
-		[self setPageTitle:nil];
-		[self setLoadComplete:NO];  
+        [self setPageTitle:nil];
+        [self setLoadComplete:NO];  
         
         [[webView mainFrame] loadRequest:[NSURLRequest requestWithURL:curURL 
                                                           cachePolicy:NSURLRequestUseProtocolCachePolicy 
@@ -117,11 +117,11 @@
         
         [self printWebView:webView fileName:saveFilePath paginate:printPaginate orientation:printOrientation];    
         
-		[output addObject:saveFilePath];
+        [output addObject:saveFilePath];
         
-	}
+    }
     
-	return (output);    
+    return (output);    
 }
 
 #pragma mark Filename Handling
@@ -134,7 +134,7 @@
         [self setPageTitle:@"Untitled"];
     
     NSString *saveFile;
-    NSString *saveFilePath;		
+    NSString *saveFilePath;     
     
     // Set filename source
     
@@ -150,13 +150,13 @@
             // No forward slashes are allowed in file names, so we replace them with a colon.
             saveFile = [[[[self pageTitle] componentsSeparatedByString:@"/"] componentsJoinedByString:@":"] stringByAppendingPathExtension:@"pdf"];
             break;
-    }	
+    }   
     
-    saveFilePath = [savePath stringByAppendingPathComponent:saveFile];	
+    saveFilePath = [savePath stringByAppendingPathComponent:saveFile];  
     
     // Don't overwrite existing files.
     
-    int renameCounter=1;		
+    int renameCounter=1;        
     while ([[NSFileManager defaultManager] fileExistsAtPath:saveFilePath]) {
         saveFilePath = [savePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-%i.%@",[saveFile stringByDeletingPathExtension],renameCounter++,[saveFile pathExtension]]];
     }     
@@ -168,60 +168,60 @@
 
 - (void)printWebView:(WebView *) webView fileName:(NSString *)filename paginate:(BOOL)printPaginate orientation:(int)printOrientation;
 {
-	// Get Print View...
-	NSView *printView = [[[webView mainFrame] frameView] documentView];
+    // Get Print View...
+    NSView *printView = [[[webView mainFrame] frameView] documentView];
     
     [[[webView mainFrame] frameView] setAllowsScrolling:NO];
     
     if (printPaginate) {
-		// To paginate we have to fake a print
-		
-		NSMutableDictionary *printInfoDict;
-		printInfoDict = [NSMutableDictionary dictionaryWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
-		[printInfoDict setObject:filename forKey:NSPrintJobSavingURL];
-		
-		NSPrintInfo *printInfo = [[NSPrintInfo alloc] initWithDictionary: printInfoDict];
-		[printInfo setHorizontallyCentered:NO];
-		[printInfo setVerticallyCentered:NO];
-		[printInfo setJobDisposition:NSPrintSaveJob];		
-		
-		// Handle margins
+        // To paginate we have to fake a print
         
-		NSRect imageableBounds = [printInfo imageablePageBounds];
-		NSSize paperSize = [printInfo paperSize];
-		if (NSWidth(imageableBounds) > paperSize.width) {
-			imageableBounds.origin.x = 0;
-			imageableBounds.size.width = paperSize.width;
-		}
-		if (NSHeight(imageableBounds) > paperSize.height) {
-			imageableBounds.origin.y = 0;
-			imageableBounds.size.height = paperSize.height;
-		}
+        NSMutableDictionary *printInfoDict;
+        printInfoDict = [NSMutableDictionary dictionaryWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
+        [printInfoDict setObject:filename forKey:NSPrintJobSavingURL];
         
-		[printInfo setBottomMargin:NSMinY(imageableBounds)];
-		[printInfo setTopMargin:paperSize.height - NSMinY(imageableBounds) - NSHeight(imageableBounds)];
-		[printInfo setLeftMargin:NSMinX(imageableBounds)];
-		[printInfo setRightMargin:paperSize.width - NSMinX(imageableBounds) - NSWidth(imageableBounds)];
+        NSPrintInfo *printInfo = [[NSPrintInfo alloc] initWithDictionary: printInfoDict];
+        [printInfo setHorizontallyCentered:NO];
+        [printInfo setVerticallyCentered:NO];
+        [printInfo setJobDisposition:NSPrintSaveJob];       
         
-		// Set orientation
-		
-		switch (printOrientation) {
-			case 0:
-				[printInfo setOrientation:NSPortraitOrientation];
-				break;
-			case 1:
-				[printInfo setOrientation:NSLandscapeOrientation];
-				break;
-		}			
+        // Handle margins
         
-		// Create print operation
-		
-		NSPrintOperation *printOp;
-		printOp = [NSPrintOperation printOperationWithView:printView printInfo:printInfo];
-		[printOp setShowsPrintPanel:NO];
-		[printOp setShowsProgressPanel:NO];
-		[printOp runOperation];
-		        
+        NSRect imageableBounds = [printInfo imageablePageBounds];
+        NSSize paperSize = [printInfo paperSize];
+        if (NSWidth(imageableBounds) > paperSize.width) {
+            imageableBounds.origin.x = 0;
+            imageableBounds.size.width = paperSize.width;
+        }
+        if (NSHeight(imageableBounds) > paperSize.height) {
+            imageableBounds.origin.y = 0;
+            imageableBounds.size.height = paperSize.height;
+        }
+        
+        [printInfo setBottomMargin:NSMinY(imageableBounds)];
+        [printInfo setTopMargin:paperSize.height - NSMinY(imageableBounds) - NSHeight(imageableBounds)];
+        [printInfo setLeftMargin:NSMinX(imageableBounds)];
+        [printInfo setRightMargin:paperSize.width - NSMinX(imageableBounds) - NSWidth(imageableBounds)];
+        
+        // Set orientation
+        
+        switch (printOrientation) {
+            case 0:
+                [printInfo setOrientation:NSPortraitOrientation];
+                break;
+            case 1:
+                [printInfo setOrientation:NSLandscapeOrientation];
+                break;
+        }           
+        
+        // Create print operation
+        
+        NSPrintOperation *printOp;
+        printOp = [NSPrintOperation printOperationWithView:printView printInfo:printInfo];
+        [printOp setShowsPrintPanel:NO];
+        [printOp setShowsProgressPanel:NO];
+        [printOp runOperation];
+                
     } else {
         // No pagination
         
@@ -237,9 +237,9 @@
 #pragma mark Webview Delegates
 
 - (void)webView:(WebView*)sender didStartProvisionalLoadForFrame:(WebFrame*)frame
-{	
+{   
     if ([sender mainFrame] == frame) {
-		//NSLog(@"didStartProvisionalLoadForFrame");
+        //NSLog(@"didStartProvisionalLoadForFrame");
     }
 }
 
@@ -251,18 +251,18 @@
 }
 
 - (void)webView:(WebView*)sender didCommitLoadForFrame:(WebFrame*)frame
-{	
-	if ([sender mainFrame] == frame) {
-		//NSLog(@"didCommitLoadForFrame");
-	}
+{   
+    if ([sender mainFrame] == frame) {
+        //NSLog(@"didCommitLoadForFrame");
+    }
 }
 
 - (void)webView:(WebView *)sender didReceiveTitle:(NSString *)title forFrame:(WebFrame *)frame
 {
     
-	if ([sender mainFrame] == frame) {
-		[self setPageTitle:title];
-	}
+    if ([sender mainFrame] == frame) {
+        [self setPageTitle:title];
+    }
 }
 
 - (void)delaySetLoadComplete {
@@ -271,9 +271,9 @@
 
 - (void)webView:(WebView*)sender didFinishLoadForFrame:(WebFrame*)frame
 {
-	if ([sender mainFrame] == frame) {
+    if ([sender mainFrame] == frame) {
     [self performSelector:@selector(delaySetLoadComplete) withObject:nil afterDelay:delay];
-	}
+    }
 }
 
 @end
